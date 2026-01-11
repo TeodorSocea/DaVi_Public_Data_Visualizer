@@ -1,0 +1,14 @@
+@prefix ex:   <http://example.org/wiki-viz/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+ex:Domains a skos:ConceptScheme ;
+  skos:prefLabel "Domains"@en .
+
+ex:Technology a skos:Concept ;
+  skos:prefLabel "Technology"@en ;
+  skos:inScheme ex:Domains .
+
+ex:ComputerScience a skos:Concept ;
+  skos:prefLabel "Computer Science"@en ;
+  skos:broader ex:Technology ;
+  skos:inScheme ex:Domains .
