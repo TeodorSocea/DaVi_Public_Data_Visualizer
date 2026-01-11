@@ -20,3 +20,17 @@ services:
       --innodb_flush_log_at_trx_commit=2
       --sync_binlog=0
     restart: unless-stopped
+
+  fuseki:
+    image: stain/jena-fuseki:latest
+    container_name: wikiviz-fuseki
+    environment:
+      ADMIN_PASSWORD: admin
+    ports:
+      - "3030:3030"
+    volumes:
+      - fuseki_data:/fuseki
+    restart: unless-stopped
+
+volumes:
+  fuseki_data:
