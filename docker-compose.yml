@@ -3,12 +3,10 @@ services:
     image: mariadb:11
     container_name: wikiviz-mariadb
     environment:
-      - MARIADB_ROOT_PASSWORD=wikivizroot
-      - MARIADB_DATABASE=wikiviz
-      - MARIADB_USER=wikiviz
-      - MARIADB_PASSWORD=wikiviz
-    ports:
-      - "3306:3306"
+      MARIADB_ROOT_PASSWORD: wikivizroot
+      MARIADB_DATABASE: wikiviz
+      MARIADB_USER: wikiviz
+      MARIADB_PASSWORD: wikiviz
     volumes:
       - ./data/mariadb:/var/lib/mysql
       - ./data/raw:/dumps:ro
@@ -16,19 +14,9 @@ services:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
       --max_allowed_packet=1G
+      --innodb_buffer_pool_size=8G
+      --innodb_log_file_size=2G
+      --innodb_log_buffer_size=256M
+      --innodb_flush_log_at_trx_commit=2
+      --sync_binlog=0
     restart: unless-stopped
-
-  fuseki:
-    image: stain/jena-fuseki:latest
-    container_name: wikiviz-fuseki
-    environment:
-      - ADMIN_PASSWORD=admin
-    ports:
-      - "3030:3030"
-    volumes:
-      - fuseki-data:/fuseki
-    restart: unless-stopped
-
-volumes:
-  mariadb_data:
-  fuseki-data:
