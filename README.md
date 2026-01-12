@@ -31,7 +31,7 @@ The project is designed to align with **Web Application Development (WADe)** pri
 
 The full technical report for this project (architecture, data models, semantic web usage, and user guide) is available as a Scholarly HTML document:
 
-- 📘 [`docs/scholarly-html.html`](docs/scholarly-html.html)
+- 📘 [`docs/scholarly-html.html`](https://teodorsocea.github.io/DaVi_Public_Data_Visualizer/scholarly-html.html)
 
 This document follows the WADe requirements and includes:
 
