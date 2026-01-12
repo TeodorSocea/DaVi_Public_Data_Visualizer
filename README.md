@@ -54,15 +54,9 @@ The OpenAPI specification describes all available endpoints, input/output format
 
 ---
 
-## 🚀 Deployment
+### Demonstration
 
-The application is deployed using Docker and Docker Compose.
-
-- Frontend: Single Page Application (Vite + React)
-- Backend: FastAPI microservice exposing SPARQL-backed APIs
-- Data source: DBpedia public SPARQL endpoint
-
-See the Scholarly HTML report for full deployment and architectural details.
+A video demo can be viewed [here](https://youtu.be/fisB9Dt8F4w).
 
 ## 🚀 Built With
 
