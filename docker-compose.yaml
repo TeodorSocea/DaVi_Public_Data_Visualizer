@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: ./services/api
-    image: ghcr.io/USER/wadev-api:latest
+    image: ghcr.io/teodorsocea/wadev-api:latest
     environment:
       - WADE_CACHE_DIR=/data/wade_cache
       - WADE_CACHE_TTL_SECONDS=43200
@@ -13,7 +13,7 @@ services:
   spa:
     build:
       context: ./apps/spa
-    image: ghcr.io/USER/wadev-spa:latest
+    image: ghcr.io/teodorsocea/wadev-spa:latest
     ports:
       - "80:80"
     depends_on:
