@@ -19,7 +19,7 @@ export type SearchResponse = {
     results: SearchResult[];
   };
   
-const API_BASE = import.meta.env.VITE_API_BASE ?? ""; // allow empty for same-origin
+const API_BASE = import.meta.env.VITE_API_BASE ?? window.location.origin; // allow empty for same-origin
 
 export async function search(q: string, kind: SearchKind, limit = 20, offset = 0): Promise<SearchResponse> {
   // If API_BASE is empty, use same-origin as base (required by URL constructor)

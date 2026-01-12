@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 type Facet = { type: string; count: number };
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE ??  window.location.origin;
 
 export default function TypeFacets({ categoryId }: { categoryId: string }) {
   const [facets, setFacets] = useState<Facet[]>([]);

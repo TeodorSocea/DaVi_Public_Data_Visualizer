@@ -60,7 +60,7 @@ export default function CategoryPage() {
     setErr(null);
     setEntitiesLoading(true);
 
-    const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+    const API_BASE = import.meta.env.VITE_API_BASE ??  window.location.origin;
 
     const p = selectedTypes.length
       ? fetch(
