@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  prefix="schema: https://schema.org/ dct: http://purl.org/dc/terms/"
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DBpedia Explorer (WADe) — Scholarly HTML Technical Report</title>
+
+    <!-- Minimal Scholarly-HTML-friendly metadata (schema.org + Dublin Core) -->
+    <meta
+      property="dct:title"
+      content="DBpedia Explorer (WADe) — Scholarly HTML Technical Report"
+    />
+    <meta property="dct:language" content="en" />
+    <meta property="dct:creator" content="Teodor Socea" />
+    <meta
+      property="dct:subject"
+      content="WADe, Semantic Web, DBpedia, SPARQL, RDFa, SKOS"
+    />
+
+    <style>
+      :root {
+        color-scheme: light;
+      }
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          Cantarell, Noto Sans, sans-serif;
+        line-height: 1.55;
+        margin: 0;
+      }
+      header,
+      main,
+      footer {
+        max-width: 980px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      header {
+        padding-top: 34px;
+      }
+      h1 {
+        font-size: 2rem;
+        margin: 0 0 8px;
+      }
+      .subtitle {
+        margin: 0 0 18px;
+        opacity: 0.8;
+      }
+      nav {
+        background: #fafafa;
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+      }
+      nav ul {
+        list-style: none;
+        padding: 12px 24px;
+        margin: 0;
+        max-width: 980px;
+        margin-inline: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      nav a {
+        text-decoration: none;
+        border-bottom: 1px dashed #999;
+        color: inherit;
+        padding: 2px 4px;
+      }
+      section {
+        margin: 28px 0;
+      }
+      h2 {
+        margin-top: 34px;
+        border-top: 1px solid #eee;
+        padding-top: 18px;
+      }
+      h3 {
+        margin-top: 20px;
+      }
+      code,
+      pre {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      pre {
+        background: #0b1020;
+        color: #e6e6e6;
+        padding: 12px;
+        border-radius: 12px;
+        overflow: auto;
+      }
+      .figure {
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 12px;
+        background: #fff;
+      }
+      .figure figcaption {
+        font-size: 0.95rem;
+        opacity: 0.85;
+        margin-top: 10px;
+      }
+      .callout {
+        border-left: 4px solid #888;
+        padding: 10px 12px;
+        background: #fafafa;
+        border-radius: 10px;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #eee;
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+      }
+      footer {
+        opacity: 0.8;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+
+  <body typeof="schema:ScholarlyArticle">
+    <header>
+      <h1 property="schema:name">DBpedia Explorer (WADe)</h1>
+      <p class="subtitle" property="schema:description">
+        A modular Web tool (SPA) for exploring large knowledge collections
+        through DBpedia, driven by SPARQL and enriched with RDFa/JSON-LD and an
+        extension system.
+      </p>
+
+      <p>
+        <strong>Author:</strong>
+        <span property="schema:author">Teodor Socea</span><br />
+        <strong>Course:</strong> Web Application Development (WADe)<br />
+        <strong>Keywords:</strong> DBpedia, SPARQL, RDF, RDFa, JSON-LD, SKOS,
+        Semantic Web, Single Page Application, Microservices
+      </p>
+
+      <div class="callout">
+        <strong>Repository / Deployment:</strong>
+        <ul>
+          <li>
+            Source repository: (private) GitHub —
+            <em>add link if you later make it public</em>
+          </li>
+          <li>Container registry: GHCR (private)</li>
+          <li>Deployment: Google Compute Engine (Docker Compose)</li>
+        </ul>
+      </div>
+    </header>
+
+    <nav aria-label="Table of contents">
+      <ul>
+        <li><a href="#abstract">Abstract</a></li>
+        <li><a href="#intro">1. Introduction</a></li>
+        <li>
+          <a href="#requirements">2. Requirements & Deliverables Mapping</a>
+        </li>
+        <li><a href="#data">3. Data Sources & Knowledge Model</a></li>
+        <li>
+          <a href="#architecture"
+            >4. Architecture & Design (Falsehood, UI Faces, C4, Design Docs)</a
+          >
+        </li>
+        <li><a href="#api">5. API Design (REST)</a></li>
+        <li><a href="#sparql">6. SPARQL Queries of Interest</a></li>
+        <li><a href="#extensions">7. Extensions (3+)</a></li>
+        <li><a href="#semweb">8. Use of DBpedia SPARQL, SKOS, and OWL</a></li>
+        <li><a href="#linkeddata">9. Linked Data Principles</a></li>
+        <li><a href="#deployment">10. Deployment</a></li>
+        <li><a href="#guide">11. User Guide & Case Studies</a></li>
+        <li><a href="#conclusion">12. Conclusion</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <section id="abstract">
+        <h2>Abstract</h2>
+        <p>
+          This report describes <strong>DBpedia Explorer (WADe)</strong>, a
+          service-oriented Web application that provides interactive visual
+          exploration of a large knowledge collection. The system is built as a
+          Single Page Application (SPA) plus a FastAPI backend that translates
+          user tasks into SPARQL queries executed against the public DBpedia
+          endpoint. The client renders search, category navigation
+          (broader/narrower), entity inspection, and multiple extensions
+          (facets, category map, related entities). The UI is enriched with RDFa
+          and JSON-LD, and each resource of interest is shareable via URL and QR
+          code.
+        </p>
+      </section>
+
+      <section id="intro">
+        <h2>1. Introduction</h2>
+        <p>
+          Large knowledge collections such as DBpedia provide rich RDF data but
+          require expertise to query and interpret. This project bridges that
+          gap by offering a human-friendly SPA that exposes core exploration
+          tasks while preserving machine-readable semantics.
+        </p>
+        <p>
+          The main goals are: (1) enable useful visual navigation over DBpedia
+          categories and entities, (2) provide modular extensions demonstrating
+          non-trivial operations, and (3) follow Web engineering practices
+          (service-oriented architecture, documentation, reproducible
+          deployment).
+        </p>
+      </section>
+
+      <section id="requirements">
+        <h2>2. Requirements & Deliverables Mapping</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>WADe requirement</th>
+              <th>How the project satisfies it</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Modular Web tool (SPA or extension) with visualizations</td>
+              <td>
+                React SPA with multiple UI faces and 3+ extensions (facets,
+                category map, related entities).
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Knowledge model expressed in SKOS/OWL, accessed via SPARQL
+              </td>
+              <td>
+                DBpedia categories treated as SKOS-like concepts;
+                broader/narrower navigation; SPARQL queries against DBpedia
+                endpoint.
+              </td>
+            </tr>
+            <tr>
+              <td>
+                At least 3 extensions (filtering, layered visualization,
+                trend/comparison, etc.)
+              </td>
+              <td>
+                Type facets (intelligent filtering), Category map (layered local
+                graph), Related entities (comparison/similarity via shared
+                categories).
+              </td>
+            </tr>
+            <tr>
+              <td>Service-oriented architecture + design docs</td>
+              <td>
+                SPA + FastAPI + DBpedia endpoint, documented in Section 4
+                (Falsehoods, UI Faces, C4, Design Docs).
+              </td>
+            </tr>
+            <tr>
+              <td>Client representations include HTML5 + schema.org + RDFa</td>
+              <td>
+                Pages include RDFa attributes and JSON-LD injection (schema.org)
+                for category/entity pages.
+              </td>
+            </tr>
+            <tr>
+              <td>Each resource exposed by URL and/or QR code</td>
+              <td>
+                ShareBar component provides copyable URL + QR code for
+                category/entity pages.
+              </td>
+            </tr>
+            <tr>
+              <td>Fully implemented and deployed solution</td>
+              <td>
+                Dockerized containers deployed on Google Compute Engine with
+                Docker Compose.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="data">
+        <h2>3. Data Sources & Knowledge Model</h2>
+        <h3>3.1 External data source: DBpedia</h3>
+        <p>
+          The application uses the public DBpedia SPARQL endpoint as a read-only
+          source of RDF data. Core interactions are implemented as SPARQL
+          queries.
+        </p>
+
+        <h3>3.2 Knowledge model reuse (SKOS/OWL/vocabularies)</h3>
+        <p>
+          DBpedia categories are used as knowledge organization units. Category
+          pages are presented as SKOS-like concepts, and relationships are
+          exposed using RDFa: broader categories and narrower categories
+          correspond to hierarchical navigation.
+        </p>
+
+        <div class="callout">
+          <strong>Note:</strong> The project intentionally reuses an existing
+          public knowledge base (DBpedia) rather than creating a new taxonomy
+          from scratch.
+        </div>
+      </section>
+
+      <section id="architecture">
+        <h2>
+          4. Architecture & Design (Falsehood • UI Faces • C4 • Design Docs)
+        </h2>
+
+        <h3>4.1 Falsehoods</h3>
+        <ul>
+          <li>
+            <strong>Data completeness:</strong> DBpedia resources may miss
+            labels, abstracts, or rdf:type assertions.
+          </li>
+          <li>
+            <strong>Endpoint performance:</strong> SPARQL response times vary;
+            timeouts and transient failures occur.
+          </li>
+          <li>
+            <strong>Model heterogeneity:</strong> Entities in the same category
+            can have diverse types and properties.
+          </li>
+          <li>
+            <strong>Result stability:</strong> DBpedia evolves; the same query
+            may return different results over time.
+          </li>
+        </ul>
+        <p>
+          Mitigations include defensive UI rendering, strict pagination, limited
+          result sets, and tolerant handling of empty/partial data.
+        </p>
+
+        <h3>4.2 UI Faces</h3>
+        <ul>
+          <li>
+            <strong>Search page:</strong> query entities/categories, show totals
+            and pagination.
+          </li>
+          <li>
+            <strong>Category page:</strong> SKOS-like navigation
+            (broader/narrower), sample entities, category-focused extensions.
+          </li>
+          <li>
+            <strong>Entity page:</strong> abstract, categories, rdf:types,
+            entity-focused extensions (related entities).
+          </li>
+        </ul>
+
+        <h3>4.3 C4 Model</h3>
+        <h4>C1 — System Context</h4>
+        <p>
+          Users interact with the SPA in a browser. The SPA communicates with
+          the backend API. The backend queries the DBpedia SPARQL endpoint.
+        </p>
+
+        <h4>C2 — Container Diagram</h4>
+        <ul>
+          <li>
+            <strong>React SPA:</strong> routing, rendering, extensions,
+            RDFa/JSON-LD, QR sharing.
+          </li>
+          <li>
+            <strong>FastAPI backend:</strong> REST API, SPARQL query generation,
+            pagination and response shaping.
+          </li>
+          <li>
+            <strong>DBpedia endpoint:</strong> external knowledge base providing
+            RDF via SPARQL.
+          </li>
+        </ul>
+
+        <figure class="figure" id="fig-c4-context">
+          <figcaption>
+            <strong>Figure 1 — C4 (Level 1) System Context.</strong> End users
+            interact with the SPA, which calls the backend API; the backend
+            queries the external DBpedia SPARQL endpoint.
+          </figcaption>
+          <svg
+            viewBox="0 0 980 260"
+            role="img"
+            aria-label="C4 System Context Diagram"
+            width="100%"
+            height="auto"
+            style="margin-top: 10px"
+          >
+            <defs>
+              <marker
+                id="arrow"
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L10,3 L0,6 Z" fill="#333" />
+              </marker>
+            </defs>
+
+            <!-- Boxes -->
+            <rect
+              x="40"
+              y="70"
+              width="220"
+              height="120"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <rect
+              x="320"
+              y="40"
+              width="300"
+              height="180"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <rect
+              x="680"
+              y="70"
+              width="260"
+              height="120"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+
+            <!-- Titles -->
+            <text
+              x="150"
+              y="105"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              User
+            </text>
+            <text
+              x="150"
+              y="130"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              Web browser
+            </text>
+
+            <text
+              x="470"
+              y="85"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              DBpedia Explorer (WADe)
+            </text>
+            <text
+              x="470"
+              y="110"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              SPA + API (service-oriented)
+            </text>
+            <text x="470" y="145" text-anchor="middle" font-size="12">
+              Provides search, category navigation, entity inspection,
+            </text>
+            <text x="470" y="163" text-anchor="middle" font-size="12">
+              extensions, and semantic annotations (RDFa/JSON-LD).
+            </text>
+
+            <text
+              x="810"
+              y="105"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              DBpedia
+            </text>
+            <text
+              x="810"
+              y="130"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              Public SPARQL endpoint
+            </text>
+
+            <!-- Arrows -->
+            <line
+              x1="260"
+              y1="130"
+              x2="320"
+              y2="130"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow)"
+            />
+            <text x="290" y="118" text-anchor="middle" font-size="11">
+              Uses
+            </text>
+            <text x="290" y="145" text-anchor="middle" font-size="11">
+              HTTP(S)
+            </text>
+
+            <line
+              x1="620"
+              y1="130"
+              x2="680"
+              y2="130"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow)"
+            />
+            <text x="650" y="118" text-anchor="middle" font-size="11">
+              Queries
+            </text>
+            <text x="650" y="145" text-anchor="middle" font-size="11">
+              SPARQL
+            </text>
+          </svg>
+        </figure>
+
+        <figure class="figure" id="fig-c4-container">
+          <figcaption>
+            <strong>Figure 2 — C4 (Level 2) Container Diagram.</strong> Main
+            runtime containers and protocols.
+          </figcaption>
+          <svg
+            viewBox="0 0 980 340"
+            role="img"
+            aria-label="C4 Container Diagram"
+            width="100%"
+            height="auto"
+            style="margin-top: 10px"
+          >
+            <defs>
+              <marker
+                id="arrow2"
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L10,3 L0,6 Z" fill="#333" />
+              </marker>
+            </defs>
+
+            <!-- SPA -->
+            <rect
+              x="70"
+              y="90"
+              width="260"
+              height="200"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="200"
+              y="125"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              React SPA
+            </text>
+            <text
+              x="200"
+              y="148"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              Vite + TypeScript
+            </text>
+            <text x="200" y="178" text-anchor="middle" font-size="12">
+              • Routes: Search / Category / Entity
+            </text>
+            <text x="200" y="198" text-anchor="middle" font-size="12">
+              • Extension registry (slots)
+            </text>
+            <text x="200" y="218" text-anchor="middle" font-size="12">
+              • RDFa + JSON-LD + QR sharing
+            </text>
+
+            <!-- API -->
+            <rect
+              x="360"
+              y="70"
+              width="280"
+              height="240"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="500"
+              y="105"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              FastAPI Backend
+            </text>
+            <text
+              x="500"
+              y="128"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              REST API
+            </text>
+            <text x="500" y="158" text-anchor="middle" font-size="12">
+              • /api/search (pagination + totals)
+            </text>
+            <text x="500" y="178" text-anchor="middle" font-size="12">
+              • /api/category/* (broader/narrower)
+            </text>
+            <text x="500" y="198" text-anchor="middle" font-size="12">
+              • /api/entity/* (details + related)
+            </text>
+            <text x="500" y="218" text-anchor="middle" font-size="12">
+              • SPARQL generation + response shaping
+            </text>
+
+            <!-- DBpedia -->
+            <rect
+              x="690"
+              y="110"
+              width="220"
+              height="160"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="800"
+              y="145"
+              text-anchor="middle"
+              font-size="16"
+              font-weight="700"
+            >
+              DBpedia
+            </text>
+            <text
+              x="800"
+              y="168"
+              text-anchor="middle"
+              font-size="12"
+              opacity="0.85"
+            >
+              SPARQL endpoint
+            </text>
+            <text x="800" y="198" text-anchor="middle" font-size="12">
+              • RDF dataset
+            </text>
+            <text x="800" y="218" text-anchor="middle" font-size="12">
+              • Public service
+            </text>
+
+            <!-- Arrows -->
+            <line
+              x1="330"
+              y1="190"
+              x2="360"
+              y2="190"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow2)"
+            />
+            <text x="345" y="178" text-anchor="middle" font-size="11">
+              HTTP
+            </text>
+            <text x="345" y="205" text-anchor="middle" font-size="11">
+              JSON
+            </text>
+
+            <line
+              x1="640"
+              y1="190"
+              x2="690"
+              y2="190"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow2)"
+            />
+            <text x="665" y="178" text-anchor="middle" font-size="11">
+              SPARQL
+            </text>
+            <text x="665" y="205" text-anchor="middle" font-size="11">
+              JSON results
+            </text>
+          </svg>
+        </figure>
+
+        <figure class="figure" id="fig-dataflow">
+          <figcaption>
+            <strong>Figure 3 — Request/Data Flow (Search).</strong> End-to-end
+            steps from user action to rendered results.
+          </figcaption>
+          <svg
+            viewBox="0 0 980 260"
+            role="img"
+            aria-label="Search data flow"
+            width="100%"
+            height="auto"
+            style="margin-top: 10px"
+          >
+            <defs>
+              <marker
+                id="arrow3"
+                markerWidth="10"
+                markerHeight="10"
+                refX="9"
+                refY="3"
+                orient="auto"
+              >
+                <path d="M0,0 L10,3 L0,6 Z" fill="#333" />
+              </marker>
+            </defs>
+
+            <rect
+              x="70"
+              y="60"
+              width="250"
+              height="140"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="195"
+              y="92"
+              text-anchor="middle"
+              font-size="15"
+              font-weight="700"
+            >
+              1) User
+            </text>
+            <text x="195" y="118" text-anchor="middle" font-size="12">
+              Submits a query (e.g., “physics”)
+            </text>
+            <text x="195" y="140" text-anchor="middle" font-size="12">
+              Selects kind + page
+            </text>
+
+            <rect
+              x="365"
+              y="60"
+              width="250"
+              height="140"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="490"
+              y="92"
+              text-anchor="middle"
+              font-size="15"
+              font-weight="700"
+            >
+              2) SPA
+            </text>
+            <text x="490" y="118" text-anchor="middle" font-size="12">
+              GET /api/search?q=…&amp;limit=…&amp;offset=…
+            </text>
+            <text x="490" y="140" text-anchor="middle" font-size="12">
+              Renders JSON results + pagination
+            </text>
+
+            <rect
+              x="660"
+              y="60"
+              width="250"
+              height="140"
+              rx="14"
+              fill="#fff"
+              stroke="#333"
+            />
+            <text
+              x="785"
+              y="92"
+              text-anchor="middle"
+              font-size="15"
+              font-weight="700"
+            >
+              3) API + DBpedia
+            </text>
+            <text x="785" y="118" text-anchor="middle" font-size="12">
+              API builds SPARQL and queries DBpedia
+            </text>
+            <text x="785" y="140" text-anchor="middle" font-size="12">
+              Returns JSON bindings → compact JSON
+            </text>
+
+            <line
+              x1="320"
+              y1="130"
+              x2="365"
+              y2="130"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow3)"
+            />
+            <line
+              x1="615"
+              y1="130"
+              x2="660"
+              y2="130"
+              stroke="#333"
+              stroke-width="2"
+              marker-end="url(#arrow3)"
+            />
+          </svg>
+        </figure>
+
+        <h3>4.4 Design Docs</h3>
+        <h4>Extension system</h4>
+        <p>
+          The SPA supports a slot-based extension registry. Extensions declare
+          an identifier, a target slot, and a render function. This enables
+          modular functionality such as facets, category map, and related
+          entities.
+        </p>
+
+        <h4>Input/output data formats</h4>
+        <ul>
+          <li>
+            <strong>Client ↔ API:</strong> JSON over HTTP (REST endpoints).
+          </li>
+          <li>
+            <strong>API ↔ DBpedia:</strong> SPARQL queries, JSON results
+            (application/sparql-results+json).
+          </li>
+          <li>
+            <strong>Client annotations:</strong> RDFa in HTML5 + JSON-LD
+            (schema.org).
+          </li>
+        </ul>
+
+        <h4>Data/task flow example (Search)</h4>
+        <ol>
+          <li>User enters query and submits.</li>
+          <li>SPA sends GET /api/search with q/kind/limit/offset.</li>
+          <li>Backend constructs SPARQL query and sends it to DBpedia.</li>
+          <li>Backend transforms bindings into compact JSON results.</li>
+          <li>SPA renders results and pagination.</li>
+        </ol>
+      </section>
+
+      <section id="api">
+        <h2>5. API Design (REST)</h2>
+        <p>
+          The backend exposes a REST API used by the SPA. Endpoints are
+          stateless and return JSON. (If you include OpenAPI examples later,
+          link screenshots or paste representative fragments.)
+        </p>
+
+        <h3>5.1 Endpoint overview</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Endpoint</th>
+              <th>Purpose</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GET /health</td>
+              <td>Health check</td>
+              <td>Used for deployment verification</td>
+            </tr>
+            <tr>
+              <td>GET /api/search</td>
+              <td>Search entities/categories</td>
+              <td>Supports kind, limit, offset; returns totals</td>
+            </tr>
+            <tr>
+              <td>GET /api/category/{id}</td>
+              <td>Category details</td>
+              <td>Broader/narrower + entity count</td>
+            </tr>
+            <tr>
+              <td>GET /api/category/{id}/entities</td>
+              <td>Entities in category</td>
+              <td>Paginated list</td>
+            </tr>
+            <tr>
+              <td>GET /api/category/{id}/facets/types</td>
+              <td>Type facets</td>
+              <td>Top rdf:types (best-effort)</td>
+            </tr>
+            <tr>
+              <td>GET /api/entity/{id}</td>
+              <td>Entity details</td>
+              <td>Label, abstract, types, categories</td>
+            </tr>
+            <tr>
+              <td>GET /api/entity/{id}/related</td>
+              <td>Related entities</td>
+              <td>Similarity via shared categories (heuristic)</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>5.2 Input/output examples</h3>
+        <p>
+          <strong>Search request:</strong>
+          <code
+            >/api/search?q=physics&amp;kind=all&amp;limit=20&amp;offset=0</code
+          >
+        </p>
+        <p><strong>Search response (example):</strong></p>
+        <pre>
+{
+  "query": "physics",
+  "kind": "all",
+  "limit": 20,
+  "offset": 0,
+  "count": 20,
+  "total": 161,
+  "entityTotal": 90,
+  "categoryTotal": 71,
+  "results": [
+    { "uri": "http://dbpedia.org/resource/Category:Physics", "label": "Physics", "kind": "category" }
+  ]
+}</pre
+        >
+      </section>
+
+      <section id="sparql">
+        <h2>6. SPARQL Queries of Interest</h2>
+        <p>
+          The backend composes SPARQL queries to implement search, navigation,
+          and extensions. Below are representative examples.
+        </p>
+
+        <h3>6.1 Search (entities/categories)</h3>
+        <pre>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX dct:  <http://purl.org/dc/terms/>
+
+# NOTE: pseudocode — the backend uses safe formatting + limits
+SELECT ?uri (SAMPLE(?label) AS ?label)
+WHERE {
+  # ... entity or category patterns ...
+  ?uri rdfs:label ?label .
+  FILTER(lang(?label) = "en")
+  FILTER(CONTAINS(LCASE(STR(?label)), LCASE("physics")))
+}
+GROUP BY ?uri
+LIMIT 20
+OFFSET 0</pre
+        >
+
+        <h3>6.2 Category membership (dct:subject)</h3>
+        <pre>
+PREFIX dct: <http://purl.org/dc/terms/>
+
+SELECT ?entity
+WHERE {
+  ?entity dct:subject <http://dbpedia.org/resource/Category:Physics> .
+}
+LIMIT 25</pre
+        >
+
+        <h3>6.3 Type facets (rdf:type counts)</h3>
+        <pre>
+PREFIX dct: <http://purl.org/dc/terms/>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+SELECT ?type (COUNT(DISTINCT ?e) AS ?count)
+WHERE {
+  ?e dct:subject <http://dbpedia.org/resource/Category:Physics> .
+  ?e rdf:type ?type .
+}
+GROUP BY ?type
+ORDER BY DESC(?count)
+LIMIT 15</pre
+        >
+
+        <div class="callout">
+          <strong>Pragmatic note:</strong> Some DBpedia categories yield sparse
+          or noisy results due to data modeling; the UI and extensions treat
+          these as best-effort.
+        </div>
+      </section>
+
+      <section id="extensions">
+        <h2>7. Extensions (3+)</h2>
+        <h3>7.1 Extension 1 — Type Facets (Intelligent filtering)</h3>
+        <p>
+          Displays the most common rdf:type values among entities in the
+          selected category. Users can select types and apply a filter. This
+          demonstrates intelligent filtering driven by SPARQL aggregation.
+        </p>
+
+        <h3>7.2 Extension 2 — Category Map (Layered visualization)</h3>
+        <p>
+          Visualizes a local neighborhood of the current category (broader and
+          narrower links), enabling quick contextual navigation. This
+          demonstrates a layered visualization for hierarchical knowledge
+          structures.
+        </p>
+
+        <h3>7.3 Extension 3 — Related Entities (Comparison/similarity)</h3>
+        <p>
+          Suggests entities related to the current entity by computing overlap
+          of categories. This provides a lightweight similarity function for
+          exploration.
+        </p>
+      </section>
+
+      <section id="semweb">
+        <h2>8. Use of DBpedia SPARQL, SKOS, and OWL</h2>
+
+      <p>
+        This project relies on the public <strong>DBpedia SPARQL endpoint</strong> as its primary knowledge source and reuses existing
+        Semantic Web vocabularies rather than defining a new ontology. The goal is to demonstrate pragmatic reuse of established
+        knowledge models in a real Web application.
+      </p>
+
+      <h3>8.1 DBpedia SPARQL endpoint</h3>
+      <p>
+        All knowledge presented in the application is retrieved dynamically from DBpedia via SPARQL queries.
+        The backend acts as a controlled intermediary that:
+      </p>
+      <ul>
+        <li>translates user-driven tasks into SPARQL queries,</li>
+        <li>applies limits and pagination to protect the public endpoint,</li>
+        <li>converts SPARQL JSON bindings into compact JSON structures for the SPA.</li>
+      </ul>
+
+      <p>
+        Typical SPARQL patterns used include:
+      </p>
+      <ul>
+        <li><code>dct:subject</code> for category membership,</li>
+        <li><code>rdfs:label</code> for human-readable labels,</li>
+        <li><code>rdf:type</code> for type-based aggregation and filtering.</li>
+      </ul>
+
+      <p>
+        Official documentation:
+        <ul>
+          <li><a href="https://dbpedia.org/sparql" target="_blank" rel="noopener">DBpedia SPARQL Endpoint</a></li>
+          <li><a href="https://wiki.dbpedia.org/services-resources/dbpedia-sparql-endpoint" target="_blank" rel="noopener">DBpedia SPARQL Service Documentation</a></li>
+        </ul>
+      </p>
+
+      <h3>8.2 Use of SKOS for category navigation</h3>
+      <p>
+        DBpedia categories are treated as <strong>concept-like resources</strong> and exposed in the UI following
+        SKOS (Simple Knowledge Organization System) principles.
+      </p>
+
+      <p>
+        Although DBpedia categories are not explicitly typed as <code>skos:Concept</code> in all cases,
+        they naturally form a hierarchical knowledge organization that aligns well with SKOS semantics.
+      </p>
+
+      <p>
+        In the application:
+      </p>
+      <ul>
+        <li>category pages are rendered as SKOS-like concepts,</li>
+        <li>broader and narrower relationships are visualized as hierarchical navigation,</li>
+        <li>RDFa annotations use <code>skos:broader</code> and <code>skos:narrower</code> to express structure.</li>
+      </ul>
+
+      <p>
+        This enables both human-friendly exploration and machine-readable interpretation of category hierarchies.
+      </p>
+
+      <p>
+        Official SKOS documentation:
+        <ul>
+          <li><a href="https://www.w3.org/TR/skos-reference/" target="_blank" rel="noopener">W3C SKOS Reference</a></li>
+        </ul>
+      </p>
+
+      <h3>8.3 Use of OWL and RDF types</h3>
+      <p>
+        OWL and RDF are used primarily to expose and aggregate semantic typing information for entities.
+        DBpedia entities are associated with multiple <code>rdf:type</code> assertions, typically drawn from the
+        DBpedia Ontology (<code>dbo:</code> namespace).
+      </p>
+
+      <p>
+        In the application, rdf:type information is used to:
+      </p>
+      <ul>
+        <li>display semantic types on entity pages,</li>
+        <li>compute type-based facets for categories,</li>
+        <li>support filtering and comparison operations.</li>
+      </ul>
+
+      <p>
+        While full OWL reasoning is outside the scope of the project, the reuse of OWL-based vocabularies
+        demonstrates how lightweight semantic typing can enhance exploratory interfaces.
+      </p>
+
+      <p>
+        Official documentation:
+        <ul>
+          <li><a href="https://wiki.dbpedia.org/services-resources/ontology" target="_blank" rel="noopener">DBpedia Ontology (OWL)</a></li>
+          <li><a href="https://www.w3.org/TR/owl2-overview/" target="_blank" rel="noopener">W3C OWL 2 Overview</a></li>
+        </ul>
+      </p>
+    </section>
+    <section id="linkeddata">
+        <h2>9. Linked Data Principles</h2>
+        <ul>
+          <li>
+            <strong>Use URIs as names for things:</strong> DBpedia resource URIs
+            are exposed and clickable.
+          </li>
+          <li>
+            <strong>Use HTTP URIs:</strong> All entities and categories use HTTP
+            URIs.
+          </li>
+          <li>
+            <strong>Provide useful information via standards:</strong> Data is
+            retrieved via SPARQL; pages include RDFa and JSON-LD.
+          </li>
+          <li>
+            <strong>Include links to other URIs:</strong> Category pages link to
+            broader/narrower categories and entities; entity pages link to
+            categories.
+          </li>
+        </ul>
+      </section>
+
+      <section id="deployment">
+        <h2>10. Deployment</h2>
+        <p>
+          The system is deployed as Docker containers (SPA + API) orchestrated
+          with Docker Compose on Google Compute Engine. Images are published to
+          GitHub Container Registry (GHCR) and pulled by the VM.
+        </p>
+        <h3>10.1 Deployment steps (high level)</h3>
+        <ol>
+          <li>Build and push images to GHCR (private).</li>
+          <li>Provision a GCE VM and install Docker + Compose.</li>
+          <li>Authenticate the VM to GHCR using a token.</li>
+          <li>
+            Run <code>docker compose pull</code> and
+            <code>docker compose up -d</code>.
+          </li>
+        </ol>
+        <p>
+          Verify deployment via <code>/health</code> and by interacting with the
+          SPA.
+        </p>
+      </section>
+
+      <section id="guide">
+        <h2>11. User Guide & Case Studies</h2>
+
+        <p>
+          This section provides a user-oriented guide to the DBpedia Explorer
+          (WADe) application. The goal is to demonstrate how end users can
+          explore, understand, and compare large knowledge collections without
+          prior expertise in Semantic Web technologies. The guide is structured
+          around three concrete case studies, each corresponding to a common
+          exploration task.
+        </p>
+
+        <!-- CASE STUDY 1 -->
+        <section>
+          <h3>Case Study 1 — Exploratory Search and Result Navigation</h3>
+
+          <p>
+            <strong>User goal.</strong>
+            Obtain an overview of entities and categories related to a general
+            topic and navigate large result sets efficiently.
+          </p>
+
+          <p>
+            <strong>Context.</strong>
+            Large knowledge bases such as DBpedia contain thousands of resources
+            for common topics. Presenting all results at once would overwhelm
+            users. The search interface therefore focuses on progressive
+            disclosure, pagination, and clear visual differentiation between
+            result types.
+          </p>
+
+          <p><strong>Steps.</strong></p>
+          <ol>
+            <li>The user opens the landing page of the application.</li>
+            <li>
+              The user enters a query (e.g., <em>physics</em>) and explicitly
+              initiates the search.
+            </li>
+            <li>
+              The system displays a limited number of results per page, visually
+              distinguishing entities from categories.
+            </li>
+            <li>
+              The user navigates between pages to explore additional results.
+            </li>
+          </ol>
+
+          <figure class="figure">
+            <img src="img/1.png" style="max-width: 100%; height: auto" />
+            <figcaption>
+              Search results for the query "physics", showing both categories
+              and entities, along with pagination controls.
+            </figcaption>
+          </figure>
+
+          <p>
+            <strong>Outcome.</strong>
+            The user gains an immediate high-level understanding of the
+            knowledge space related to the query and can decide which results
+            are worth deeper exploration. Pagination and result counts support
+            orientation and prevent cognitive overload.
+          </p>
+        </section>
+
+        <!-- CASE STUDY 2 -->
+        <section>
+          <h3>
+            Case Study 2 — Category Exploration with Hierarchy and Faceted
+            Filtering
+          </h3>
+
+          <p>
+            <strong>User goal.</strong>
+            Explore the internal structure of a knowledge domain and narrow down
+            large result sets using meaningful semantic criteria.
+          </p>
+
+          <p>
+            <strong>Context.</strong>
+            Categories in DBpedia act as organizational hubs. However, they may
+            contain thousands of heterogeneous entities. This case study
+            demonstrates how hierarchical navigation and faceted filtering
+            support sense-making.
+          </p>
+
+          <p><strong>Steps.</strong></p>
+          <ol>
+            <li>
+              The user opens a category page from the search results (e.g., a
+              physics-related category).
+            </li>
+            <li>
+              The system presents broader and narrower categories, enabling
+              hierarchical navigation.
+            </li>
+            <li>
+              The user inspects the <em>Type Facets</em> extension to see the
+              most common rdf:type values among entities.
+            </li>
+            <li>
+              The user selects one or more types and applies the filter to
+              update the entity list.
+            </li>
+            <li>
+              The user optionally uses the <em>Category Map</em> extension to
+              visualize the local category neighborhood.
+            </li>
+          </ol>
+
+          <figure class="figure">
+            <img src="img/2.png" style="max-width: 100%; height: auto" />
+            <figcaption>
+              Category page showing hierarchical navigation (broader/narrower)
+              and the Type Facets extension used for intelligent filtering.
+            </figcaption>
+          </figure>
+
+          <p>
+            <strong>Outcome.</strong>
+            The user can progressively refine the explored knowledge domain,
+            moving from a broad category to a focused subset of entities.
+            Faceted filtering and layered visualization reduce complexity while
+            preserving semantic meaning.
+          </p>
+        </section>
+
+        <!-- CASE STUDY 3 -->
+        <section>
+          <h3>
+            Case Study 3 — Entity Inspection and Discovery of Related Knowledge
+          </h3>
+
+          <p>
+            <strong>User goal.</strong>
+            Understand an individual entity in context and discover related
+            entities based on shared semantic characteristics.
+          </p>
+
+          <p>
+            <strong>Context.</strong>
+            Individual entities in DBpedia often have rich semantic links to
+            categories and other entities. Presenting this information in a
+            structured and visual manner supports comparison and deeper
+            understanding.
+          </p>
+
+          <p><strong>Steps.</strong></p>
+          <ol>
+            <li>
+              The user opens an entity page from a category or search result.
+            </li>
+            <li>
+              The system displays the entity’s label, abstract description,
+              categories, and rdf:type assertions.
+            </li>
+            <li>
+              The user inspects the <em>Related Entities</em> extension to
+              discover semantically similar entities.
+            </li>
+            <li>
+              The user shares the entity page using the generated URL or QR
+              code.
+            </li>
+          </ol>
+
+          <figure class="figure">
+            <img src="img/3.png" style="max-width: 100%; height: auto" />
+            <figcaption>
+              Entity page presenting descriptive information, semantic
+              categories, and rdf:type assertions.
+            </figcaption>
+          </figure>
+
+          <p>
+            <strong>Outcome.</strong>
+            The user develops a contextual understanding of the entity and can
+            easily transition to related knowledge. Semantic relationships are
+            exposed in a human-readable form, while sharing features support
+            reuse beyond the application.
+          </p>
+        </section>
+      </section>
+
+      <section id="conclusion">
+        <h2>12. Conclusion</h2>
+        <p>
+          DBpedia Explorer (WADe) demonstrates how a modular SPA can expose
+          Semantic Web datasets through human-friendly exploration and reusable
+          extensions. The system is service-oriented, uses SPARQL and RDF-based
+          knowledge models, provides machine-readable annotations, and is
+          deployed using modern Web engineering practices.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        <strong>Attribution:</strong> Data provided by DBpedia (RDF). This
+        report is written in a Scholarly HTML style for the WADe course.
+      </p>
+    </footer>
+  </body>
+</html>
