@@ -19,26 +19,23 @@ export type SearchResponse = {
     results: SearchResult[];
   };
   
+const API_BASE = import.meta.env.VITE_API_BASE ?? ""; // allow empty for same-origin
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "";
+export async function search(q: string, kind: SearchKind, limit = 20, offset = 0): Promise<SearchResponse> {
+  // If API_BASE is empty, use same-origin as base (required by URL constructor)
+  const base = API_BASE ? API_BASE : window.location.origin;
 
+  const url = new URL("/api/search", base);
+  url.searchParams.set("q", q);
+  url.searchParams.set("kind", kind);
+  url.searchParams.set("limit", String(limit));
+  url.searchParams.set("offset", String(offset));
 
-export async function search(
-    q: string,
-    kind: SearchKind,
-    limit = 20,
-    offset = 0
-  ): Promise<SearchResponse> {
-    const url = new URL(`${API_BASE}/api/search`);
-    url.searchParams.set("q", q);
-    url.searchParams.set("kind", kind);
-    url.searchParams.set("limit", String(limit));
-    url.searchParams.set("offset", String(offset));
-  
-    const res = await fetch(url.toString());
-    if (!res.ok) throw new Error(`Search failed: ${res.status}`);
-    return res.json();
-  }
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`Search failed: ${res.status}`);
+  return res.json();
+}
+
   
 
 export type CategoryRef = { uri: string; id: string; label: string };
