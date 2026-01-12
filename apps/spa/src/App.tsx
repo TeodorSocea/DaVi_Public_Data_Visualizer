@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { search, SearchKind, SearchResult } from "./lib/api";
+import { search } from "./lib/api";
+import type { SearchKind, SearchResult } from "./lib/api";
 import "./extensions";
 
 export default function App() {
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState("physics");
   const [kind, setKind] = useState<SearchKind>("all");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);

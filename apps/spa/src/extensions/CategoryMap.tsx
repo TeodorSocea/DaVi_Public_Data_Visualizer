@@ -59,8 +59,8 @@ export default function CategoryMap({ categoryId }: { categoryId: string }) {
     ];
 
     const edges = [
-      ...parents.map((p, i) => ({ from: { x: leftX, y: parentYs[i] }, to: { x: cx, y: cy } })),
-      ...children.map((c, i) => ({ from: { x: cx, y: cy }, to: { x: rightX, y: childYs[i] } })),
+      ...parents.map((_p, i) => ({ from: { x: leftX, y: parentYs[i] }, to: { x: cx, y: cy } })),
+      ...children.map((_c, i) => ({ from: { x: cx, y: cy }, to: { x: rightX, y: childYs[i] } })),
     ];
 
     return { parents, children, nodes, edges };

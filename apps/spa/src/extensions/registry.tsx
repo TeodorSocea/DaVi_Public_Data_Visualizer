@@ -1,27 +1,25 @@
+import type { ReactElement } from "react";
+
 export type ExtensionSlot = "category.sidebar" | "entity.sidebar";
 
 export type CategoryContext = { categoryId: string };
 export type EntityContext = { entityId: string };
 
-export type ExtensionContextMap = {
-  "category.sidebar": CategoryContext;
-  "entity.sidebar": EntityContext;
-};
+export type ExtensionContext = CategoryContext | EntityContext;
 
-// Generic Extension type: render() gets the right ctx for the slot
-export type Extension<S extends ExtensionSlot = ExtensionSlot> = {
+export type Extension = {
   id: string;
   title: string;
-  slot: S;
-  render: (ctx: ExtensionContextMap[S]) => JSX.Element;
+  slot: ExtensionSlot;
+  render: (ctx: any) => ReactElement; // pragmatic: slot determines ctx shape
 };
 
 const extensions: Extension[] = [];
 
-export function registerExtension<S extends ExtensionSlot>(ext: Extension<S>) {
-  extensions.push(ext as Extension);
+export function registerExtension(ext: Extension) {
+  extensions.push(ext);
 }
 
-export function getExtensions<S extends ExtensionSlot>(slot: S): Extension<S>[] {
-  return extensions.filter((e) => e.slot === slot) as Extension<S>[];
+export function getExtensions(slot: ExtensionSlot): Extension[] {
+  return extensions.filter((e) => e.slot === slot);
 }
