@@ -1,1 +1,223 @@
-# DaVi_Public_Data_Visualizer
+# DBpedia Explorer (WADe)
+
+> A Web Application Development (WADe) project for exploring DBpedia entities and categories using SPARQL, with semantic annotations and extensible UI components.
+
+---
+
+## 🧠 About the Project
+
+**DBpedia Explorer (WADe)** is a single-page web application that allows users to explore **DBpedia entities and categories** through a clean, interactive interface.
+
+The application supports:
+
+- Searching DBpedia entities and categories
+- Browsing category hierarchies (broader / narrower)
+- Viewing semantic metadata (RDFa + JSON-LD)
+- Discovering related entities via shared categories
+- Extensible UI through a custom extension system
+
+The project is designed to align with **Web Application Development (WADe)** principles:
+
+- Client–server architecture
+- REST APIs
+- Semantic Web technologies
+- Modular and extensible frontend design
+
+---
+
+## 🚀 Built With
+
+### Frontend
+
+- React (Vite)
+- TypeScript
+- React Router
+- RDFa & JSON-LD
+
+### Backend
+
+- FastAPI
+- Python
+- SPARQL (DBpedia endpoint)
+- Async HTTP requests
+
+### Deployment
+
+- Docker
+- Docker Compose
+- Google Cloud Compute Engine
+
+---
+
+## ✨ Features
+
+- 🔍 **Search**
+
+  - Entities, categories, or both
+  - Paginated results
+  - Result counts (entities vs categories)
+
+- 🗂️ **Category Exploration**
+
+  - Broader / narrower navigation (SKOS-style)
+  - Sample entities per category
+  - Type facet filtering
+
+- 🧩 **Entity Pages**
+
+  - Categories and RDF types
+  - Related entities based on shared categories
+  - Semantic annotations (RDFa + JSON-LD)
+
+- 🧱 **Extension System**
+
+  - Slot-based registry
+  - Category sidebar extensions
+  - Entity sidebar extensions
+
+---
+
+## 🧩 Extension Architecture
+
+The application includes a **custom extension registry**, inspired by plugin systems.
+
+Example:
+
+```ts
+registerExtension({
+  id: "ext-type-facets",
+  slot: "category.sidebar",
+  render: ({ categoryId }) => <TypeFacets categoryId={categoryId} />,
+});
+```
+
+### Supported slots
+
+- `category.sidebar`
+- `entity.sidebar`
+
+This allows features such as:
+
+- Type facets
+- Category maps
+- Related entities
+- Future visualizations (graphs, timelines, maps)
+
+---
+
+## 🧪 Semantic Web Support
+
+This project explicitly supports **Semantic Web standards**:
+
+- SPARQL queries against DBpedia
+- RDFa embedded in rendered HTML
+- JSON-LD for structured metadata
+- SKOS concepts for category navigation
+
+The content is both **human-readable and machine-readable**.
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+[ React SPA ]
+     |
+     |  REST API
+     v
+[ FastAPI Backend ]
+     |
+     |  SPARQL
+     v
+[ DBpedia Endpoint ]
+```
+
+---
+
+## ⚙️ Installation & Development
+
+### Prerequisites
+
+- Node.js ≥ 18
+- Python ≥ 3.8
+- Docker (optional, for deployment)
+
+---
+
+### Frontend (SPA)
+
+```bash
+cd apps/spa
+npm install
+npm run dev
+```
+
+---
+
+### Backend (API)
+
+```bash
+cd services/api
+uvicorn main:app --reload --port 8000
+```
+
+---
+
+## 🐳 Deployment (Docker)
+
+The application is containerized and deployed using Docker.
+
+```bash
+docker compose up -d
+```
+
+The deployment includes:
+
+- SPA container
+- API container
+
+---
+
+## 🌐 Live Deployment
+
+Deployed on **Google Cloud Compute Engine**.
+
+- SPA: `http://<server-ip>/`
+- API health check: `http://<server-ip>/health`
+
+---
+
+## 📚 Project Context
+
+This project was developed as part of the **Web Application Development (WADe)** course.
+
+Key objectives:
+
+- Apply client–server architecture
+- Use REST APIs and SPARQL
+- Integrate Semantic Web technologies
+- Design a modular, extensible web application
+
+---
+
+## 🧑‍💻 Author
+
+**Teodor Socea**
+GitHub: [https://github.com/TeodorSocea](https://github.com/TeodorSocea)
+
+---
+
+## 📄 License
+
+This project was developed for **academic purposes**.
+
+All data is provided by **DBpedia**, under its respective license.
+
+---
+
+## ✅ Future Improvements
+
+- Improved caching strategies
+- Graph-based visualizations
+- Enhanced ranking and filtering
+- UI polish and accessibility improvements
